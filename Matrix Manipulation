@@ -1,0 +1,239 @@
+// Fundamental Matrix Operations
+
+ 
+ i/ LU decomposition
+ ii/ Matrix inversion
+ iii/Matrix multiplication
+ iv/MATRIX INVERSION - LU DECOMPOSITION
+ v/MATRIX ADDITION 
+ vi/MATRIX SUBTRACTION 
+ vii/MATRIX TRANSPOSE
+viii/MATRIX MINOR
+iX/DETERMINANT OF A MATRIX
+X/MATRIX INVERSION USING MINORS
+Xi/TRACE MATRIX
+
+
+#include "stdafx.h"
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <math.h>
+using namespace std;
+
+
+//***** LU DECOMPOSITION******
+// Structure to store upper and lower matrices
+typedef struct{
+	vector<vector<double> > L;
+	vector<vector<double> > U;
+}LUstruct;
+
+// LU decomposition;
+LUstruct LU(vector<vector<double> > A) {
+	int N = A.size();
+	vector<vector<double> >  B(N,vector<double> (N));
+	for(int i=0;i<=N-1;i++)
+		for(int j=0;j<=N-1;j++)
+			B[i][j] = A[i][j];
+
+	for(int k=0;k<=N-2;k++) {
+		for(int i=k+1;i<=N-1;i++)
+			B[i][k] = B[i][k] / B[k][k];
+		for(int j=k+1;j<=N-1;j++)
+			for(int i=k+1;i<=N-1;i++)
+				B[i][j] = B[i][j] - B[i][k]*B[k][j];
+	}
+	vector<vector<double> >  L(N,vector<double> (N));
+	vector<vector<double> >  U(N,vector<double> (N));
+	for(int i=0;i<=N-1;i++)	{
+		L[i][i] = 1.0;
+		for(int j=0;j<=N-1;j++) {
+			if(i>j)
+				L[i][j] = B[i][j];
+			else
+				U[i][j] = B[i][j];
+		}
+	}
+	LUstruct Mats;
+	Mats.L = L;
+	Mats.U = U;
+	return Mats;
+}
+
+
+//*****MATRIX INVERSION******
+// Inverse of an upper triangular matrix
+vector<vector<double> >  MatUpTriangleInv(vector<vector<double> > U) {
+	int N = U.size();
+	vector<vector<double> >  V(N,vector<double> (N));
+	for(int j=N-1;j>=0;j--) {
+		V[j][j] = 1.0 / U[j][j];
+		for(int i=j-1;i>=0;i--)
+			for(int k=i+1;k<=j;k++)
+				V[i][j] -= 1.0 / U[i][i] * U[i][k] * V[k][j];
+	}
+	return V;
+}
+
+// Inverse of a lower triangular matrix
+vector<vector<double> >  MatLowTriangleInv(vector<vector<double> > L) {
+	int N = L.size();
+	vector<vector<double> >  V(N,vector<double> (N));
+	for(int i=0;i<=N-1;i++)	{
+		V[i][i] = 1.0 / L[i][i];
+		for(int j=i-1;j>=0;j--)
+			for(int k=i-1;k>=j;k--)
+				V[i][j] -= 1.0 / L[i][i] * L[i][k] * V[k][j];
+	}
+	return V;
+}
+
+
+//***** MATRIX MULTIPLICATION ******
+// Multiply two matrices together
+// First matrix is (n x k), Second is (k x m)
+// Resulting matrix is (n x m)
+vector<vector<double> > MMult(vector<vector<double> >A,vector<vector<double> >B, int n, int k, int m) {
+	vector<vector<double> >  C(n, vector<double> (m));
+	for (int j=0; j<=m-1; j++)
+		for (int i=0; i<=n-1; i++) {
+			C[i][j] = 0;
+			for (int r=0; r<=k-1; r++)
+				C[i][j] += A[i][r] * B[r][j];
+		}
+	return C;
+}
+
+//***MATRIX INVERSION - LU DECOMPOSITION **** //
+// Inverse of a matrix through LU decomposition
+vector<vector<double> >  MInvLU(vector<vector<double> > A) {
+	LUstruct Mats;
+	Mats = LU(A);
+	vector<vector<double> >  L = Mats.L;
+	vector<vector<double> >  U = Mats.U;
+	vector<vector<double> >  Linv = MatLowTriangleInv(L);
+	vector<vector<double> >  Uinv = MatUpTriangleInv(U);
+	int n = Linv.size();
+	int k = Linv[0].size();
+	int m = Uinv[0].size();
+	vector<vector<double> >  Ainv = MMult(Uinv,Linv,n,k,m);
+	return Ainv;
+}
+
+
+//***MATRIX ADDITION **** //
+// Add two matrices together
+vector<vector<double> > MAdd(vector<vector<double> >A, vector<vector<double> >B, int n, int m) {
+	vector<vector<double> >  C(n, vector<double> (m));
+	for (int j=0; j<=m-1; j++)
+		for (int i=0; i<=n-1; i++)
+			C[i][j] = A[i][j] + B[i][j];
+	return C;
+}
+
+
+//***MATRIX SUBTRACTION **** //
+// Subtract two matrices
+vector<vector<double> > MSub(vector<vector<double> >A,vector<vector<double> >B, int n, int m) {
+	vector<vector<double> >  C(n, vector<double> (m));
+	for (int j=0; j<=m-1; j++)
+		for (int i=0; i<=n-1; i++)
+			C[i][j] = A[i][j] - B[i][j];
+	return C;
+}
+
+//***MATRIX TRANSPOSE **** //
+// Transpose of a matrix
+vector<vector<double> > MTrans(vector<vector<double> >A, int n, int m) {
+	vector<vector<double> >  C(m, vector<double> (n));
+	for (int j=0; j<=m-1; j++)
+		for (int i=0; i<=n-1; i++)
+			C[j][i] = A[i][j];
+	return C;
+}
+
+
+//***MATRIX MINOR **** //
+// Minor of matrix A, eliminating row RowExclude and column ColExclude
+// RowExclude and ColExclude run from 0 to (n-1)
+vector<vector<double> > MMinor(vector<vector<double> > A, int RowExclude, int ColExclude) {
+	int n =  A.size();
+	vector<vector<double> >  M((n-1), vector<double> (n-1));
+	int ColCount=0;
+	for (int j=0; j<=n-1; j++) {
+		if (j!=ColExclude) {
+			int RowCount = 0;
+			for (int i=0; i<=n-1; i++)
+				if (i!=RowExclude) {
+					M[RowCount][ColCount] = A[i][j];
+					RowCount++;
+			}
+		ColCount++;
+		}
+	}
+	return M;
+}
+
+
+//***DETERMINANT OF A MATRIX**** //
+// Determinant of a square matrix
+// Expand along the first row
+double MDet(vector<vector<double> > A) {
+	int n = A.size();
+	double det = 0;
+	if (n==1) det = A[0][0];
+	else {
+		if (n==2) det = A[0][0]*A[1][1] - A[1][0]*A[0][1];
+		else
+			for (int j=0; j<=n-1; j++)
+				det += A[0][j]*pow(-1.0,j)*MDet(MMinor(A,0,j));
+	}
+	return det;
+}
+
+//***MATRIX INVERSION USING MINORS **** //
+// Inverse of a Matrix using minors
+vector<vector<double> > MInv(vector<vector<double> >A) {
+	int n = A.size();
+	vector<vector<double> >  C(n, vector<double> (n));
+	double det = MDet(A);
+	for (int j=0; j<=n-1; j++)
+		for (int i=0; i<=n-1; i++)
+			C[i][j] = pow(-1.0,(i+j))*MDet(MMinor(A,i,j)) / det;
+	return MTrans(C, n, n);
+}
+
+//***TRACE MATRIX**** //
+// Trace of a Matrix
+double MTrace(vector<vector<double> > A) {
+	double sum = 0;
+	double n = A.size();
+	for (int i=0; i<=n-1; i++)
+		sum += A[i][i];
+	return sum;
+}
+
+int main() {
+	int cols = 5;
+	int rows = 5;
+
+	// Initialize the matrices and read in the data
+	vector<vector<double> >  X(rows, vector<double> (cols));
+	vector<vector<double> >  Xinv1(rows, vector<double> (cols));
+	vector<vector<double> >  Xinv2(rows, vector<double> (cols));
+	X[0][0] =  1.2; X[0][1] = 0.1; X[0][2] = 0.4;  X[0][3] =  0.5; X[0][4] = 0.3;
+	X[1][0] =  9.1; X[1][1] = 3.1; X[1][2] = 1.7;  X[1][3] =  0.1; X[1][4] = 1.3;
+	X[2][0] =  1.0; X[2][1] = 1.2; X[2][2] = 2.6;  X[2][3] =  0.9; X[2][4] = 0.1;
+	X[3][0] =  3.6; X[3][1] = 8.0; X[3][2] = 0.4;  X[3][3] =  0.6; X[3][4] = 4.6;
+	X[4][0] =  3.1; X[4][1] = 4.1; X[4][2] = 0.4;  X[4][3] =  0.9; X[4][4] = 0.1;
+
+	// X inverse using minor expansion
+	Xinv1 = MInv(X);
+
+	// X inverse using LU decomposition
+	Xinv2 = MInvLU(X);
+
+	cout << "The trace of X-inverse using minors is    " << MTrace(Xinv1) << endl;
+	cout << "The trace of X-inverse using LU-decomp is " << MTrace(Xinv2) << endl;
+}
