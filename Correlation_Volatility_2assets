@@ -1,6 +1,7 @@
 Calculating Correlation and Volatility of two assets - A and B
 
 Lambda is an arbitrary decay parameter
+This code needs file AB.txt which is within this repository
 
 #include "stdafx.h"
 #using <mscorlib.dll>
