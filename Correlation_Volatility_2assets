@@ -1,0 +1,86 @@
+Calculating Correlation and Volatility of two assets - A and B
+
+Lambda is an arbitrary decay parameter
+
+#include "stdafx.h"
+#using <mscorlib.dll>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <vector>
+#include <cmath>
+using namespace System;
+using namespace std;
+
+int main() {
+	double lambda = 0.84;			// Lambda is an arbitrary decay parameter
+	int i = 0;				// Counters
+	double n1, n2;
+	ifstream  inPrices;
+	ofstream outPrices;
+	inPrices.open("AB.txt");
+	outPrices.open("Prices.txt");
+	vector<double> Price1;
+	vector<double> Price2;
+
+	// Read in raw prices for asset A and asset B, Price1[] and Price2[], from external
+	// text file AB.txt and write both prices to a separate file titled Prices.txt
+	while (!inPrices.eof()) {
+		inPrices >> n1 >> n2;
+		Price1.push_back(n1);
+		Price2.push_back(n2);
+		i++ ;
+	}
+
+	// Get the size of the resulting price vectors and set return vectors, n
+	int n = Price1.size();
+	vector<double> Ret1(n-1);
+	vector<double> Ret2(n-1);
+
+	// Calculate log returns for both sets of prices, Ret1[] and Ret2[]
+	for (int i=0; i<=n-2; i++) {
+		Ret1[i] = log(Price1[i]/Price1[i+1]);
+		Ret2[i] = log(Price2[i]/Price2[i+1]);
+	}
+	// Calculate the weights for the risk modelling, W[i]
+	double temp;
+	vector<double> T(n);
+	vector<double> W(n);
+	double sumW = 0.0;
+	for (int i=0; i<=n-2; i++) {
+		T[i] = pow(lambda, i);
+		sumW = sumW + T[i];
+	}
+	for (int i=0; i<=n-2; i++) {
+		W[i] = T[i] / sumW;
+	}
+
+	// Next we calculate the volatility, vol1 and vol2 and
+	// the covariance, cov
+	double vol1 = 0.0;
+	double vol2 = 0.0;
+	double corr = 0.0;
+	double cov = 0.0;
+	for (int i=0; i<=n-2; i++) {
+		vol1 = vol1 + W[i]*pow(Ret1[i],2); 
+		vol2 = vol2 + W[i]*pow(Ret2[i],2);
+		cov  = cov  + W[i]*Ret1[i]*Ret2[i];
+	}
+
+	// Next we calculate the correlation, corr
+	corr = cov / sqrt(vol1) / sqrt(vol2);
+
+	// Output the results to the console
+	cout << "Volatility of asset A is " << endl;
+	cout << endl;
+	cout << sqrt(vol1) << "  or  " << sqrt(vol1)*100 << " %" << endl;
+	cout << endl;
+	cout << "Volatility of asset B is " << endl;
+	cout << endl;
+	cout << sqrt(vol2) << "  or  " << sqrt(vol2)*100 << " %" << endl;
+	cout << endl;
+	cout << "Covariance between asset A and asset B is " << cov << endl;
+	cout << endl;
+	cout << "Correlation between asset A and asset B is " << corr << endl;
+	cout << endl;
+}
