@@ -8,3 +8,4 @@ C++ Programs
 4. Calculate the distance between two nodes
 5. Find factorial using recursion
 6. Generate Random Number from Specified Probability Distribution
+7. Code to check if two matrices are multipliable
