@@ -1,10 +1,12 @@
 
 C++ Programs for Quantitative Research and Decision Making
+
    - These tools built in C++ are able to 
         manipulate data to produce useful outputs
         - These outputs can then be applied 
               towards useful decision making and application. 
 
+LIST OF C++ Quant Tools in this repo:
 
 1. Matrix Manipulation Functions
 2. Correlation, Covariance and Volatility of two assets
