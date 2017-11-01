@@ -1,7 +1,7 @@
 
 C++ Programs for Quantitative Research and Decision Making
 
-   - These tools built in C++ are able to 
+   - These quant research tools built in C++ are able to 
         manipulate data to produce useful outputs
         - These outputs can then be applied 
               towards useful decision making and application. 
