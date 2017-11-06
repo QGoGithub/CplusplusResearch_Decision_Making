@@ -1,4 +1,7 @@
 // Black Scholes implied volatility using S&P500 option prices
+
+ // requires SPY.txt for data //
+ 
 #include "stdafx.h"
 #using <mscorlib.dll>
 #include <complex>
