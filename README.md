@@ -16,3 +16,4 @@ LIST OF C++ Quant Tools in this repo:
 6. Generate Random Number from Specified Probability Distribution
 7. Code to check if two matrices are multipliable
 8. Schonhage-Strassen Algorithm - Multiply 2 numbers
+9. Merton Jump Diffusion - See separate repository
